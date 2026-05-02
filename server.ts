@@ -11,15 +11,14 @@ const __dirname = path.dirname(__filename);
 const DOMAIN_URL = "https://online.anyflip.com";
 const SANITISE_PATTERN = /anyflip\.com\/([\w.-]+)\/([\w.-]+)/i;
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+const PORT = 3000;
 
-  app.use(cors());
-  app.use(express.json());
+app.use(cors());
+app.use(express.json());
 
-  // API Route: Get Metadata
-  app.get("/api/metadata", async (req, res) => {
+// API Route: Get Metadata
+app.get("/api/metadata", async (req, res) => {
     const { url: rawUrl } = req.query;
 
     if (!rawUrl || typeof rawUrl !== "string") {
@@ -186,7 +185,8 @@ async function startServer() {
     }
   });
 
-  // Start server logic...
+// Start server logic...
+async function setupServer() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -201,9 +201,14 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  // Only listen if not in a serverless environment or if specifically requested
+  if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  }
 }
 
-startServer();
+setupServer();
+
+export default app;

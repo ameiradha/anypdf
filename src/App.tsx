@@ -28,11 +28,27 @@ export default function App() {
     try {
       const endpoint = "/api/metadata";
       const resp = await fetch(`${endpoint}?url=${encodeURIComponent(url)}`);
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data.error || "Failed to fetch AnyFlip metadata");
-      setMetadata(data);
-      setStatus("idle");
+      
+      // Check content type before parsing as JSON
+      const contentType = resp.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || "Failed to fetch AnyFlip metadata");
+        setMetadata(data);
+        setStatus("idle");
+      } else {
+        // Handle non-JSON responses (usually 404/500 HTML pages from providers like Vercel)
+        const text = await resp.text();
+        if (!resp.ok) {
+          if (text.includes("<html") || text.includes("<!DOCTYPE")) {
+            throw new Error(`Server returned an error page (Status ${resp.status}). If you are on Vercel, ensure your API routes are correctly configured.`);
+          }
+          throw new Error(text || `Request failed with status ${resp.status}`);
+        }
+        throw new Error("Server returned an invalid response format (Expected JSON).");
+      }
     } catch (err: any) {
+      console.error("Fetch Error:", err);
       setError(err.message);
       setStatus("error");
     } finally {
