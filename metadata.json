@@ -1,0 +1,6 @@
+{
+  "name": "AnyFlip to PDF",
+  "description": "Convert AnyFlip digital flipbooks to downloadable PDF files by providing the book URL.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
