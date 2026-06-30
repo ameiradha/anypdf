@@ -1,6 +1,6 @@
 {
   "name": "AnyFlip to PDF",
-  "description": "Convert AnyFlip digital flipbooks to downloadable PDF files by providing the book URL.",
+  "description": "Professional AnyFlip digital flipbook extraction tool. Convert flipbooks to high-resolution PDF documents quickly and securely.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }
