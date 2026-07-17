@@ -22,7 +22,9 @@ interface FetchCompatibleResponse {
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
 // Proxy configuration - Currently empty until working proxies are provided
-const PROXY_LIST: string[] = [];
+const PROXY_LIST: string[] = [
+  "http://aefkpuun:ujil690b6y5h@31.59.20.176:6754"
+];
 
 async function requestWithProxy(targetUrl: string, options: { headers?: Record<string, string>; timeout?: number; isBinary?: boolean } = {}): Promise<{ status: number; headers: any; body: any }> {
   const headers = {
@@ -66,6 +68,9 @@ async function requestWithProxy(targetUrl: string, options: { headers?: Record<s
 
     try {
       const response = await got(targetUrl, gotOptions) as any;
+      if (response.statusCode >= 400) {
+        throw new Error(`Upstream returned HTTP ${response.statusCode}`);
+      }
       return {
         status: response.statusCode,
         headers: response.headers,
@@ -77,6 +82,9 @@ async function requestWithProxy(targetUrl: string, options: { headers?: Record<s
         try {
           console.log(`Direct request failed for ${targetUrl}, trying allorigins fallback...`);
           const response = await got(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`, { ...gotOptions, agent: undefined });
+          if (response.statusCode >= 400) {
+            throw new Error(`AllOrigins returned HTTP ${response.statusCode}`);
+          }
           return {
             status: response.statusCode,
             headers: response.headers,
@@ -90,8 +98,8 @@ async function requestWithProxy(targetUrl: string, options: { headers?: Record<s
     }
   };
 
-  // Try direct, then proxies
-  const attempts = [null, ...PROXY_LIST]; // null means direct
+  // Try proxies first (preferred for serverless/Vercel to bypass IP bans), then direct
+  const attempts = [...PROXY_LIST, null]; // null means direct
 
   for (const proxy of attempts) {
     try {
