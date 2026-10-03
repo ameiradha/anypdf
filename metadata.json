@@ -1,0 +1,8 @@
+{
+  "name": "AnyPDF Converter",
+  "description": "Professional AnyFlip digital flipbook extraction tool. Convert flipbooks to high-resolution PDF documents quickly and securely.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
